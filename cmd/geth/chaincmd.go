@@ -204,6 +204,7 @@ func initGenesis(ctx *cli.Context) error {
 	defer file.Close()
 
 	genesis := new(core.Genesis)
+	// 解析genesis配置文件
 	if err := json.NewDecoder(file).Decode(genesis); err != nil {
 		utils.Fatalf("invalid genesis file: %v", err)
 	}
@@ -288,8 +289,10 @@ func importChain(ctx *cli.Context) error {
 		utils.Fatalf("This command requires an argument.")
 	}
 	// Start metrics export if enabled
+	// 如果启用，启动指标导出
 	utils.SetupMetrics(ctx)
 	// Start system runtime metrics collection
+	// 启动系统运行时指标收集
 	go metrics.CollectProcessMetrics(3 * time.Second)
 
 	stack, _ := makeConfigNode(ctx)
@@ -299,6 +302,7 @@ func importChain(ctx *cli.Context) error {
 	defer db.Close()
 
 	// Start periodically gathering memory profiles
+	// 开始定期收集内存配置文件
 	var peakMemAlloc, peakMemSys atomic.Uint64
 	go func() {
 		stats := new(runtime.MemStats)
@@ -338,6 +342,7 @@ func importChain(ctx *cli.Context) error {
 	showLeveldbStats(db)
 
 	// Print the memory statistics used by the importing
+	// 打印导入使用的内存统计信息
 	mem := new(runtime.MemStats)
 	runtime.ReadMemStats(mem)
 
@@ -430,6 +435,8 @@ func importHistory(ctx *cli.Context) error {
 	} else {
 		// No network flag set, try to determine network based on files
 		// present in directory.
+		// 没有设置网络标志，尝试根据文件确定网络
+		// 显示在目录中。
 		var networks []string
 		for _, n := range params.NetworkNames {
 			entries, err := era.ReadDir(dir, n)
@@ -458,6 +465,8 @@ func importHistory(ctx *cli.Context) error {
 
 // exportHistory exports chain history in Era archives at a specified
 // directory.
+// exportHistory在指定位置导出Era归档中的链历史
+// 目录中。
 func exportHistory(ctx *cli.Context) error {
 	if ctx.Args().Len() != 3 {
 		utils.Fatalf("usage: %s", ctx.Command.ArgsUsage)
@@ -495,6 +504,10 @@ func exportHistory(ctx *cli.Context) error {
 // it is deprecated, and the export function has been removed, but
 // the import function is kept around for the time being so that
 // older file formats can still be imported.
+// importPreimages从指定文件导入预映像数据。
+// 它已被弃用，并且导出功能已被删除，但是
+// 导入函数暂时保留，以便
+// 旧的文件格式仍然可以导入。
 func importPreimages(ctx *cli.Context) error {
 	if ctx.Args().Len() < 1 {
 		utils.Fatalf("This command requires an argument.")
@@ -561,7 +574,7 @@ func parseDumpConfig(ctx *cli.Context, stack *node.Node) (*state.DumpConfig, eth
 	default:
 		return nil, nil, common.Hash{}, fmt.Errorf("invalid start argument: %x. 20 or 32 hex-encoded bytes required", startArg)
 	}
-	var conf = &state.DumpConfig{
+	conf := &state.DumpConfig{
 		SkipCode:          ctx.Bool(utils.ExcludeCodeFlag.Name),
 		SkipStorage:       ctx.Bool(utils.ExcludeStorageFlag.Name),
 		OnlyWithAddresses: !ctx.Bool(utils.IncludeIncompletesFlag.Name),
@@ -598,6 +611,7 @@ func dump(ctx *cli.Context) error {
 }
 
 // hashish returns true for strings that look like hashes.
+// hashish对于看起来像哈希的字符串返回true。
 func hashish(x string) bool {
 	_, err := strconv.Atoi(x)
 	return err != nil

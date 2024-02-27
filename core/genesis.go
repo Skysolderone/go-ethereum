@@ -244,6 +244,7 @@ func SetupGenesisBlockWithOverride(db ethdb.Database, triedb *triedb.Database, g
 		}
 	}
 	// Just commit the new block if there is no stored genesis block.
+	// 如果没有存储的创世块，只需提交新块。
 	stored := rawdb.ReadCanonicalHash(db, 0)
 	if (stored == common.Hash{}) {
 		if genesis == nil {
